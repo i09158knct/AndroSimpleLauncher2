@@ -72,10 +72,10 @@ public class MainActivity extends Activity {
 
 	private void cacheAllApps() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		prefs.edit().putString(PREF_KEY_APPS, buildPrevValue()).commit();
+		prefs.edit().putString(PREF_KEY_APPS, buildPrefValue()).commit();
 	}
 
-	private String buildPrevValue() {
+	private String buildPrefValue() {
 		PackageManager manager = getPackageManager();
 		Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
 		mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
