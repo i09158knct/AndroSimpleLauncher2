@@ -24,6 +24,13 @@ public class AppListManager {
         }
     }
 
+    static public Intent createLaunchIntent(String[] appInfo) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        intent.setClassName(appInfo[0], appInfo[1]);
+        return intent;
+    }
+
     public List<String[]> fetchAllApps() {
         String[] arrayOfPackageNameAndMainName = mPrefs.getString(PREF_KEY_APPS, "").split("\n");
         ArrayList<String[]> appList = new ArrayList<String[]>();
@@ -34,19 +41,20 @@ public class AppListManager {
     }
 
     public void cacheAllApps() {
-        mPrefs.edit().putString(PREF_KEY_APPS, buildPrefValue()).commit();
+        List<ResolveInfo> apps = getResolveInfoList();
+        mPrefs.edit().putString(PREF_KEY_APPS, convertResolveInfoListToString(apps)).commit();
     }
 
-    private String buildPrefValue() {
+    private List<ResolveInfo> getResolveInfoList() {
         PackageManager manager = mContext.getPackageManager();
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> apps = manager.queryIntentActivities(mainIntent, 0);
         Collections.sort(apps, new ResolveInfo.DisplayNameComparator(manager));
-        return toPrefString(apps);
+        return apps;
     }
 
-    private String toPrefString(List<ResolveInfo> apps) {
+    private String convertResolveInfoListToString(List<ResolveInfo> apps) {
         StringBuilder builder = new StringBuilder();
         PackageManager prefManager = mContext.getPackageManager();
         for (ResolveInfo app : apps) {
