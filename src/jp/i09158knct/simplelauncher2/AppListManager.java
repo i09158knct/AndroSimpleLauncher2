@@ -6,13 +6,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class AppListManager {
-    private final String PREF_KEY_APPS = "apps";
+    static private final String PREF_KEY_APPS = "__all__";
+    static private final String PREF_KEY_CATEGORY_SOLT = "category_";
+    static public final String CATEGORY_NAME_ALL_APPS = PREF_KEY_APPS;
     private final Context mContext;
     private final SharedPreferences mPrefs;
 
@@ -31,18 +32,39 @@ public class AppListManager {
         return intent;
     }
 
-    public List<String[]> fetchAllApps() {
-        String[] arrayOfPackageNameAndMainName = mPrefs.getString(PREF_KEY_APPS, "").split("\n");
-        ArrayList<String[]> appList = new ArrayList<String[]>();
-        for (String names : arrayOfPackageNameAndMainName) {
-            appList.add(names.split("\t"));
-        }
-        return appList;
+    public List<String[]> getCategoryOfAllApps() {
+        return getCategory(PREF_KEY_APPS);
     }
 
     public void cacheAllApps() {
         List<ResolveInfo> apps = getResolveInfoList();
-        mPrefs.edit().putString(PREF_KEY_APPS, convertResolveInfoListToString(apps)).commit();
+        List<String[]> appInfos = convertResolveInfoListToAppInfoList(apps);
+        saveCategory(PREF_KEY_APPS, appInfos);
+    }
+
+    public List<String> getAllCategoryNameList() {
+        Set<String> prefKeySet = mPrefs.getAll().keySet();
+        ArrayList<String> categorys = new ArrayList<String>();
+        for (String prefKey : prefKeySet) {
+            if (prefKey.startsWith(PREF_KEY_CATEGORY_SOLT)) {
+                categorys.add(prefKey.substring(PREF_KEY_CATEGORY_SOLT.length()));
+            }
+        }
+        return categorys;
+    }
+
+    public List<String[]> getCategory(String categoryName) {
+        String[] rows = mPrefs.getString(PREF_KEY_CATEGORY_SOLT + categoryName, "").split("\n");
+        ArrayList<String[]> appInfos = new ArrayList<String[]>(rows.length);
+        for (String names : rows) {
+            appInfos.add(names.split("\t"));
+        }
+        return appInfos;
+    }
+
+    public void saveCategory(String categoryName, List<String[]> appInfos) {
+        String value = convertAppInfoListToString(appInfos);
+        mPrefs.edit().putString(PREF_KEY_CATEGORY_SOLT + categoryName, value).commit();
     }
 
     private List<ResolveInfo> getResolveInfoList() {
@@ -54,17 +76,30 @@ public class AppListManager {
         return apps;
     }
 
-    private String convertResolveInfoListToString(List<ResolveInfo> apps) {
+    private String convertAppInfoListToString(List<String[]> apps) {
         StringBuilder builder = new StringBuilder();
-        PackageManager prefManager = mContext.getPackageManager();
-        for (ResolveInfo app : apps) {
-            builder.append(app.activityInfo.packageName);
+        for (String[] app : apps) {
+            builder.append(app[0]);
             builder.append("\t");
-            builder.append(app.activityInfo.name);
+            builder.append(app[1]);
             builder.append("\t");
-            builder.append(app.loadLabel(prefManager));
+            builder.append(app[2]);
             builder.append("\n");
         }
         return builder.toString();
     }
+
+    private List<String[]> convertResolveInfoListToAppInfoList(List<ResolveInfo> apps) {
+        ArrayList<String[]> appInfoList = new ArrayList<String[]>(apps.size());
+        PackageManager prefManager = mContext.getPackageManager();
+        for (ResolveInfo app : apps) {
+            String[] appInfo = new String[3];
+            appInfo[0] = app.activityInfo.packageName;
+            appInfo[1] = app.activityInfo.name;
+            appInfo[2] = app.loadLabel(prefManager).toString();
+            appInfoList.add(appInfo);
+        }
+        return appInfoList;
+    }
+
 }

@@ -4,10 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -15,6 +12,7 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
+    public static final String EXTRA_KEY_CATEGORY_NAME = "category";
     private AppListManager mAppsManager;
 
     @Override
@@ -22,9 +20,19 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        String categoryName = extractCategoryNameFromIntentOrDefault();
+
         mAppsManager = new AppListManager(this);
-        List<String[]> appInfos = mAppsManager.fetchAllApps();
+        List<String[]> appInfos = mAppsManager.getCategory(categoryName);
         initializeGridView(appInfos);
+    }
+
+    private String extractCategoryNameFromIntentOrDefault() {
+        Intent intent = getIntent();
+        String categoryName = intent.getStringExtra(EXTRA_KEY_CATEGORY_NAME);
+        return (categoryName == null) ?
+                AppListManager.CATEGORY_NAME_ALL_APPS :
+                categoryName;
     }
 
     private void initializeGridView(final List<String[]> appInfos) {
@@ -42,9 +50,30 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        mAppsManager.cacheAllApps();
-        Toast.makeText(this, "List has been updated.", Toast.LENGTH_SHORT).show();
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                mAppsManager.cacheAllApps();
+                Toast.makeText(this, "List has been updated.", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_new_category:
+                intent = new Intent(this, NewCategoryActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.action_select_category:
+                intent = new Intent(this, CategoryListActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private class AppInfosAdopter extends ArrayAdapter<String[]> {
