@@ -20,7 +20,7 @@ public class AppListManager {
     public AppListManager(Context context) {
         mContext = context;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        if (!mPrefs.contains(PREF_KEY_APPS)) {
+        if (!mPrefs.contains(PREF_KEY_CATEGORY_SOLT + PREF_KEY_APPS)) {
             cacheAllApps();
         }
     }
