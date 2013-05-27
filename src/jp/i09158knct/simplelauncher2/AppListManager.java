@@ -44,13 +44,13 @@ public class AppListManager {
 
     public List<String> getAllCategoryNameList() {
         Set<String> prefKeySet = mPrefs.getAll().keySet();
-        ArrayList<String> categorys = new ArrayList<String>();
+        ArrayList<String> categories = new ArrayList<String>();
         for (String prefKey : prefKeySet) {
             if (prefKey.startsWith(PREF_KEY_CATEGORY_SOLT)) {
-                categorys.add(prefKey.substring(PREF_KEY_CATEGORY_SOLT.length()));
+                categories.add(prefKey.substring(PREF_KEY_CATEGORY_SOLT.length()));
             }
         }
-        return categorys;
+        return categories;
     }
 
     public List<String[]> getCategory(String categoryName) {
