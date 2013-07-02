@@ -11,16 +11,16 @@ import android.util.Log;
 import java.util.*;
 
 public class AppListManager {
-    static private final String PREF_KEY_APPS = "__all__";
+    static private final String SPECIAL_KEY_ALL_APP = "__all__";
     static private final String PREF_KEY_CATEGORY_SOLT = "category_";
-    static public final String CATEGORY_NAME_ALL_APPS = PREF_KEY_APPS;
+    static public final String CATEGORY_NAME_ALL_APPS = SPECIAL_KEY_ALL_APP;
     private final Context mContext;
     private final SharedPreferences mPrefs;
 
     public AppListManager(Context context) {
         mContext = context;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        if (!mPrefs.contains(PREF_KEY_CATEGORY_SOLT + PREF_KEY_APPS)) {
+        if (!mPrefs.contains(PREF_KEY_CATEGORY_SOLT + SPECIAL_KEY_ALL_APP)) {
             cacheAllApps();
         }
     }
@@ -33,13 +33,13 @@ public class AppListManager {
     }
 
     public List<String[]> getCategoryOfAllApps() {
-        return getCategory(PREF_KEY_APPS);
+        return getCategory(SPECIAL_KEY_ALL_APP);
     }
 
     public void cacheAllApps() {
         List<ResolveInfo> apps = getResolveInfoList();
         List<String[]> appInfos = convertResolveInfoListToAppInfoList(apps);
-        saveCategory(PREF_KEY_APPS, appInfos);
+        saveCategory(SPECIAL_KEY_ALL_APP, appInfos);
     }
 
     public List<String> getAllCategoryNameList() {
