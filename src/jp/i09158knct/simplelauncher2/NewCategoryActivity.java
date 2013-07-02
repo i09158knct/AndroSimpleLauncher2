@@ -1,14 +1,9 @@
 package jp.i09158knct.simplelauncher2;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.SparseBooleanArray;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.*;
 
 import java.util.ArrayList;
@@ -42,9 +37,18 @@ public class NewCategoryActivity extends Activity {
     }
 
     private void onFinishSelection() {
-        EditText editText = (EditText) findViewById(R.id.new_category_name);
-        String categoryName = editText.getText().toString();
+        String categoryName = getCategoryName();
+        List<String[]> checkedAppList = geCheckedAppList();
+        mAppsManager.saveCategory(categoryName, checkedAppList);
+        finish();
+    }
 
+    private String getCategoryName() {
+        EditText editText = (EditText) findViewById(R.id.new_category_name);
+        return editText.getText().toString();
+    }
+
+    private List<String[]> geCheckedAppList() {
         ListView list = (ListView) findViewById(R.id.new_category_app_list);
         SparseBooleanArray checkingList = list.getCheckedItemPositions();
         List<String[]> checkedAppList = new ArrayList<String[]>(64);
@@ -54,9 +58,7 @@ public class NewCategoryActivity extends Activity {
                 checkedAppList.add(mAppInfos.get(i));
             }
         }
-
-        mAppsManager.saveCategory(categoryName, checkedAppList);
-        finish();
+        return checkedAppList;
     }
 
     private void initializeAppList(final List<String[]> appInfos) {
