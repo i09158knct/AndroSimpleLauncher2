@@ -20,7 +20,7 @@ public class AppListManager {
     public AppListManager(Context context) {
         mContext = context;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        if (!mPrefs.contains(PREF_KEY_CATEGORY_SOLT + SPECIAL_KEY_ALL_APP)) {
+        if (!mPrefs.contains(convertToPrefKey(SPECIAL_KEY_ALL_APP))) {
             cacheAllApps();
         }
     }
@@ -54,7 +54,7 @@ public class AppListManager {
     }
 
     public List<String[]> getCategory(String categoryName) {
-        String[] rows = mPrefs.getString(PREF_KEY_CATEGORY_SOLT + categoryName, "").split("\n");
+        String[] rows = mPrefs.getString(convertToPrefKey(categoryName), "").split("\n");
         ArrayList<String[]> appInfos = new ArrayList<String[]>(rows.length);
         for (String names : rows) {
             appInfos.add(names.split("\t"));
@@ -64,7 +64,7 @@ public class AppListManager {
 
     public void saveCategory(String categoryName, List<String[]> appInfos) {
         String value = convertAppInfoListToString(appInfos);
-        mPrefs.edit().putString(PREF_KEY_CATEGORY_SOLT + categoryName, value).commit();
+        mPrefs.edit().putString(convertToPrefKey(categoryName), value).commit();
     }
 
     private List<ResolveInfo> getResolveInfoList() {
@@ -74,6 +74,10 @@ public class AppListManager {
         List<ResolveInfo> apps = manager.queryIntentActivities(mainIntent, 0);
         Collections.sort(apps, new ResolveInfo.DisplayNameComparator(manager));
         return apps;
+    }
+
+    private String convertToPrefKey(String categoryName) {
+        return PREF_KEY_CATEGORY_SOLT + categoryName;
     }
 
     private String convertAppInfoListToString(List<String[]> apps) {
