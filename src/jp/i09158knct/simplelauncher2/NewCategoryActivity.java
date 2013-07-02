@@ -54,8 +54,8 @@ public class NewCategoryActivity extends Activity {
         List<String[]> checkedAppList = new ArrayList<String[]>(64);
 
         for (int i = 0; i < checkingList.size(); i++) {
-            if (checkingList.get(i)) {
-                checkedAppList.add(mAppInfos.get(i));
+            if (checkingList.valueAt(i)) {
+                checkedAppList.add(mAppInfos.get(checkingList.keyAt(i)));
             }
         }
         return checkedAppList;
