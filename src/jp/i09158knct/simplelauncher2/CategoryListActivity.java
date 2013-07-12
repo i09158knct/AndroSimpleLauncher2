@@ -21,10 +21,7 @@ public class CategoryListActivity extends ListActivity {
 
         mAppsManager = new AppListManager(this);
         mCategories = mAppsManager.getAllCategoryNameList();
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-        for (String categoryName : mCategories) {
-            adapter.add(categoryName);
-        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mCategories);
         setListAdapter(adapter);
     }
 
